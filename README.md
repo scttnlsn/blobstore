@@ -11,7 +11,7 @@ Add the following to your `Cargo.toml` file:
 
 ```toml
 [dependencies]
-blobstore = "^0.2"
+blobstore = "*"
 ```
 
 and import into your code:
