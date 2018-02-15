@@ -1,45 +1,15 @@
 extern crate crypto;
 extern crate tempfile;
 
-use crypto::digest::Digest;
-use crypto::sha2::Sha256;
 use std::fs;
 use std::io;
 use std::io::{Error, Read};
 use std::path::Path;
 
+mod hash;
+
 pub trait Store {
     fn write(&self, item: &mut Read) -> Result<String, Error>;
-}
-
-struct HashedReader<'a> {
-    reader: &'a mut Read,
-    sha: Sha256
-}
-
-impl<'a> HashedReader<'a> {
-    fn new(reader: &'a mut Read) -> HashedReader<'a> {
-        HashedReader {
-            reader: reader,
-            sha: Sha256::new()
-        }
-    }
-
-    fn digest(&mut self) -> String {
-        self.sha.result_str()
-    }
-}
-
-impl<'a> Read for HashedReader<'a> {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        match self.reader.read(buf) {
-            Ok(size) => {
-                self.sha.input(&buf[..size]);
-                Ok(size)
-            },
-            err => err
-        }
-    }
 }
 
 pub struct BlobStore {
@@ -60,7 +30,7 @@ impl BlobStore {
 
 impl Store for BlobStore {
     fn write(&self, source: &mut Read) -> Result<String, Error> {
-        let mut reader = HashedReader::new(source);
+        let mut reader = hash::HashedReader::new(source);
         let mut writer = tempfile::NamedTempFile::new()?;
 
         io::copy(&mut reader, &mut writer)?;
@@ -78,7 +48,7 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn it_works() {
+    fn write() {
         let mut source = "foo\n".as_bytes();
         let store = BlobStore { path: "./output".to_string() };
         let key = store.write(&mut source).expect("error writing file");
