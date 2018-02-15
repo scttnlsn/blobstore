@@ -25,7 +25,7 @@ extern crate blobstore;
 ```rust
 extern crate blobstore;
 
-use blob_store::BlobStore;
+use blobstore::BlobStore;
 
 let mut data = "foo".as_bytes();
 let store = BlobStore::new("./store".to_string());
