@@ -4,7 +4,7 @@ extern crate tempfile;
 use std::fs;
 use std::fs::File;
 use std::io;
-use std::io::{Error, Read};
+use std::io::{Error, ErrorKind, Read};
 use std::path::Path;
 
 mod hash;
@@ -20,14 +20,17 @@ pub struct BlobStore {
 }
 
 impl BlobStore {
-    fn file_path(&self, hash: &str) -> String {
+    fn file_path(&self, hash: &str) -> Result<String, Error> {
         let dir_name: &str = self.path.as_ref();
         let dir = Path::new(dir_name).join(&hash[..2]);
         let path = dir.join(&hash[2..]);
 
-        // fixme: this is unsafe, create might fail
-        fs::create_dir_all(dir).unwrap();
-        path.to_str().unwrap().to_string()
+        fs::create_dir_all(dir)?;
+
+        match path.to_str() {
+            None => Err(Error::new(ErrorKind::Other, "invalid path")),
+            Some(value) => Ok(value.to_string())
+        }
     }
 }
 
@@ -39,19 +42,19 @@ impl Store for BlobStore {
         io::copy(&mut reader, &mut writer)?;
 
         let hash = reader.digest();
-        let dest = self.file_path(&hash);
+        let dest = self.file_path(&hash)?;
         fs::rename(writer.path(), dest)?;
 
         Ok(hash)
     }
 
     fn get(&self, hash: &str) -> Result<File, Error> {
-        let path = self.file_path(hash);
+        let path = self.file_path(hash)?;
         File::open(path)
     }
 
     fn remove(&self, hash: &str) -> Result<(), Error> {
-        let path = self.file_path(hash);
+        let path = self.file_path(hash)?;
         fs::remove_file(path)?;
         Ok(())
     }
