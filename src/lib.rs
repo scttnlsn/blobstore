@@ -2,6 +2,7 @@ extern crate crypto;
 extern crate tempfile;
 
 use std::fs;
+use std::fs::File;
 use std::io;
 use std::io::{Error, Read};
 use std::path::Path;
@@ -9,7 +10,9 @@ use std::path::Path;
 mod hash;
 
 pub trait Store {
-    fn write(&self, item: &mut Read) -> Result<String, Error>;
+    fn put(&self, item: &mut Read) -> Result<String, Error>;
+    fn get(&self, hash: &str) -> Result<File, Error>;
+    fn remove(&self, hash: &str) -> Result<(), Error>;
 }
 
 pub struct BlobStore {
@@ -17,7 +20,7 @@ pub struct BlobStore {
 }
 
 impl BlobStore {
-    fn file_path(&self, hash: &String) -> String {
+    fn file_path(&self, hash: &str) -> String {
         let dir_name: &str = self.path.as_ref();
         let dir = Path::new(dir_name).join(&hash[..2]);
         let path = dir.join(&hash[2..]);
@@ -29,16 +32,28 @@ impl BlobStore {
 }
 
 impl Store for BlobStore {
-    fn write(&self, source: &mut Read) -> Result<String, Error> {
+    fn put(&self, source: &mut Read) -> Result<String, Error> {
         let mut reader = hash::HashedReader::new(source);
         let mut writer = tempfile::NamedTempFile::new()?;
 
         io::copy(&mut reader, &mut writer)?;
 
         let hash = reader.digest();
-        fs::rename(writer.path(), self.file_path(&hash))?;
+        let dest = self.file_path(&hash);
+        fs::rename(writer.path(), dest)?;
 
         Ok(hash)
+    }
+
+    fn get(&self, hash: &str) -> Result<File, Error> {
+        let path = self.file_path(hash);
+        File::open(path)
+    }
+
+    fn remove(&self, hash: &str) -> Result<(), Error> {
+        let path = self.file_path(hash);
+        fs::remove_file(path)?;
+        Ok(())
     }
 }
 
@@ -46,13 +61,43 @@ impl Store for BlobStore {
 mod tests {
     use super::{BlobStore, Store};
     use std::fs;
+    use std::io::Read;
 
     #[test]
-    fn write() {
-        let mut source = "foo\n".as_bytes();
-        let store = BlobStore { path: "./output".to_string() };
-        let key = store.write(&mut source).expect("error writing file");
-        fs::remove_dir_all(store.path).expect("error deleting store dir");
-        assert_eq!(key, "b5bb9d8014a0f9b1d61e21e796d78dccdf1352f23cd32812f4850b878ae4944c");
+    fn put() {
+        let mut source = "foo".as_bytes();
+        let store = BlobStore { path: "./put_test".to_string() };
+        let hash = store.put(&mut source).unwrap();
+        fs::remove_dir_all(store.path).unwrap();
+
+        assert_eq!(hash, "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae");
+    }
+
+    #[test]
+    fn get() {
+        let mut source = "bar".as_bytes();
+        let store = BlobStore { path: "./get_test".to_string() };
+        let hash = store.put(&mut source).unwrap();
+        let mut value = String::new();
+        store.get(hash.as_ref()).unwrap().read_to_string(&mut value).unwrap();
+        fs::remove_dir_all(store.path).unwrap();
+
+        assert_eq!(value, "bar");
+    }
+
+    #[test]
+    fn remove() {
+        let mut source = "baz".as_bytes();
+        let store = BlobStore { path: "./remove_test".to_string() };
+        let hash = store.put(&mut source).unwrap();
+        store.remove(hash.as_ref()).unwrap();
+        let error = match store.get(hash.as_ref()) {
+            Err(_) => true,
+            _ => false
+        };
+
+        fs::remove_dir_all(store.path).unwrap();
+
+        assert_eq!(error, true);
     }
 }
