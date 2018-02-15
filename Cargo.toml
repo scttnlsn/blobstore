@@ -1,0 +1,8 @@
+[package]
+name = "blob-store"
+version = "0.1.0"
+authors = ["Scott Nelson <scott@scottnelson.co>"]
+
+[dependencies]
+rust-crypto = "^0.2"
+tempfile = "2.2.0"
