@@ -1,7 +1,7 @@
 # blobstore
 
-[![Travis CI Status](https://travis-ci.org/scttnlsn/blob-store.svg?branch=master)](https://travis-ci.org/scttnlsn/blob-store)
-[![crates.io](https://img.shields.io/crates/v/blob-store.svg)](https://crates.io/crates/blob-store)
+[![Travis CI Status](https://travis-ci.org/scttnlsn/blobstore.svg?branch=master)](https://travis-ci.org/scttnlsn/blobstore)
+[![crates.io](https://img.shields.io/crates/v/blobstore.svg)](https://crates.io/crates/blobstore)
 
 A content addressable store for arbitrary blobs.
 
