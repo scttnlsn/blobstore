@@ -1,7 +1,11 @@
 [package]
 name = "blob-store"
 version = "0.1.0"
+description = "content addressable blob store"
+keywords = ["blob", "store", "content", "addressable", "hash"]
+repository = "https://github.com/scttnlsn/blob-store"
 authors = ["Scott Nelson <scott@scottnelson.co>"]
+license = "MIT/Apache-2.0"
 
 [dependencies]
 rust-crypto = "^0.2"
