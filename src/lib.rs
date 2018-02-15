@@ -20,6 +20,10 @@ pub struct BlobStore {
 }
 
 impl BlobStore {
+    pub fn new(path: String) -> BlobStore {
+        BlobStore { path: path }
+    }
+
     fn file_path(&self, hash: &str) -> Result<String, Error> {
         let dir_name: &str = self.path.as_ref();
         let dir = Path::new(dir_name).join(&hash[..2]);
@@ -69,7 +73,7 @@ mod tests {
     #[test]
     fn put() {
         let mut source = "foo".as_bytes();
-        let store = BlobStore { path: "./put_test".to_string() };
+        let store = BlobStore::new("./put_test".to_string());
         let hash = store.put(&mut source).unwrap();
         fs::remove_dir_all(store.path).unwrap();
 
@@ -79,7 +83,7 @@ mod tests {
     #[test]
     fn get() {
         let mut source = "bar".as_bytes();
-        let store = BlobStore { path: "./get_test".to_string() };
+        let store = BlobStore::new("./get_test".to_string());
         let hash = store.put(&mut source).unwrap();
         let mut value = String::new();
         store.get(hash.as_ref()).unwrap().read_to_string(&mut value).unwrap();
@@ -91,7 +95,7 @@ mod tests {
     #[test]
     fn remove() {
         let mut source = "baz".as_bytes();
-        let store = BlobStore { path: "./remove_test".to_string() };
+        let store = BlobStore::new("./remove_test".to_string());
         let hash = store.put(&mut source).unwrap();
         store.remove(hash.as_ref()).unwrap();
         let error = match store.get(hash.as_ref()) {
