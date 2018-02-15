@@ -1,4 +1,4 @@
-# blob-store
+# blobstore
 
 [![Travis CI Status](https://travis-ci.org/scttnlsn/blob-store.svg?branch=master)](https://travis-ci.org/scttnlsn/blob-store)
 [![crates.io](https://img.shields.io/crates/v/blob-store.svg)](https://crates.io/crates/blob-store)
@@ -11,19 +11,19 @@ Add the following to your `Cargo.toml` file:
 
 ```toml
 [dependencies]
-blob-store = "^0.2"
+blobstore = "^0.2"
 ```
 
 and import into your code:
 
 ```rust
-extern crate blob_store;
+extern crate blobstore;
 ```
 
 ## Example
 
 ```rust
-extern crate blob_store;
+extern crate blobstore;
 
 use blob_store::BlobStore;
 

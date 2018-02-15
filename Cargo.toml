@@ -1,9 +1,9 @@
 [package]
-name = "blob-store"
+name = "blobstore"
 version = "0.1.0"
 description = "content addressable blob store"
 keywords = ["blob", "store", "content", "addressable", "hash"]
-repository = "https://github.com/scttnlsn/blob-store"
+repository = "https://github.com/scttnlsn/blobstore"
 authors = ["Scott Nelson <scott@scottnelson.co>"]
 license = "MIT/Apache-2.0"
 
