@@ -1,6 +1,6 @@
 [package]
 name = "blobstore"
-version = "0.1.0"
+version = "0.1.1"
 description = "content addressable blob store"
 keywords = ["blob", "store", "content", "addressable", "hash"]
 repository = "https://github.com/scttnlsn/blobstore"
