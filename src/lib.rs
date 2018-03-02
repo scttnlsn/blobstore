@@ -41,7 +41,9 @@ impl BlobStore {
 impl Store for BlobStore {
     fn put(&self, source: &mut Read) -> Result<String, Error> {
         let mut reader = hash::HashedReader::new(source);
-        let mut writer = tempfile::NamedTempFile::new()?;
+
+        fs::create_dir_all(&self.path)?;
+        let mut writer = tempfile::NamedTempFile::new_in(&self.path)?;
 
         io::copy(&mut reader, &mut writer)?;
 
